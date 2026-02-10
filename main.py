@@ -5,18 +5,18 @@ import math
 import threading
 import random
 import time
-import sqlite3
+import psycopg2
 
 from dotenv import load_dotenv
 load_dotenv()
 
 API_TOKEN = os.environ.get("TELEGRAM_API_TOKEN")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "/Ibrahim2189/ly")
-DATABASE_NAME = "bot_db.sqlite3"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 # إعداد قاعدة البيانات وإنشاء الجداول إذا لم تكن موجودة
 def db_connection():
-    return sqlite3.connect(DATABASE_NAME)
+    return psycopg2.connect(DATABASE_URL)
 
 def initialize_db():
     conn = db_connection()
@@ -24,7 +24,7 @@ def initialize_db():
     # جدول المستخدمين
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        telegram_id INTEGER PRIMARY KEY,
+        telegram_id BIGINT PRIMARY KEY,
         username TEXT,
         role TEXT,
         gender TEXT,
@@ -36,7 +36,7 @@ def initialize_db():
     # حالة السائق
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS driver_status (
-        driver_id INTEGER PRIMARY KEY,
+        driver_id BIGINT PRIMARY KEY,
         status TEXT,
         lat REAL,
         lon REAL
@@ -45,7 +45,7 @@ def initialize_db():
     # الرحلات
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS trips (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         passenger_id INTEGER,
         passenger_name TEXT,
         gender TEXT,
